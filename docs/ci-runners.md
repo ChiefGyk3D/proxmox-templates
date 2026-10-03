@@ -22,9 +22,10 @@ it is a foothold inside the network. So:
   job, and the VM is destroyed and recloned from its template. Nothing a job
   writes survives it.
 - A runner holds **no long-lived secret**. Registration uses a just-in-time
-  runner token minted by a GitHub App installed on the organisation (or, until
-  the org move, a fine-grained token scoped to runner administration held only
-  by the controller, never inside a runner). Jobs get secrets the way they do
+  runner config minted per repository by a GitHub App installed on the
+  personal account with runner administration on exactly the repositories
+  that use lab runners; the App's key lives on the controller, never inside a
+  runner. Jobs get secrets the way they do
   today: OIDC to Doppler, nothing on disk.
 
 ## Where it runs
@@ -164,9 +165,11 @@ workflows run, with a stricter network and no secret at rest.
 
 ## Decisions still open
 
-- Organisation move (roadmap 16) before or alongside: runner groups and the
-  self-hosted policy become one org setting instead of 21 repository settings.
-  Strongly preferred before the controller is written.
+- The repositories stay under the personal account for the foreseeable
+  future (decided 2026-10-03), so there are no organisation runner groups:
+  the controller registers runners per repository with just-in-time configs,
+  and the audit in git-your-ship-together remains the thing that keeps the
+  21 repositories' settings aligned.
 - ARM node: a Pi 5 is enough for the arm64 template; an Ampere board is
   enough to also build images natively. Decide once the amd64 half works.
 - Where the SIEM ingests runner audit logs: Wazuh agent in the template, or
